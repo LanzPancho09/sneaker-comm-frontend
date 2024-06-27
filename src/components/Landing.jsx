@@ -17,6 +17,9 @@ function Landing() {
             <h1 className="font-inter font-[800] text-8xl text-[#ED0121]">
               SUPREME
             </h1>
+            <Button className="h-[60px] w-[230px] m-2 font-bold text-sm text-[#FFFFFF] outline outline-1 bg-[#101010] hover:text-white hover:bg-[#ED0121] hover:outline-0">
+              BUY NOW
+            </Button>
           </div>
           <div>
             <img
@@ -65,10 +68,7 @@ function Landing() {
             <h1 className="font-black text-6xl text-[#514539]">
               Reverse Mocha
             </h1>
-            <Button
-              className="h-[60px] w-[230px] m-2 font-bold text-sm text-[#514539] outline outline-2 outline-[#514539] hover:text-white hover:bg-[#514539]"
-              variant="outline"
-            >
+            <Button className="h-[60px] w-[230px] m-2 font-bold text-sm text-[#514539] bg-[#F8F8F8] outline outline-1 outline-[#514539] hover:text-white hover:bg-[#514539] hover:outline-0">
               BUY NOW $99
             </Button>
           </div>
