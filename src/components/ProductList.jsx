@@ -9,10 +9,10 @@ import {
 } from "@/components/ui/carousel";
 import { IoIosHeartEmpty } from "react-icons/io";
 
-export function ProductList() {
+function ProductList({ categoryName = "Category" }) {
   return (
     <>
-      <h4 className="mb-2 font-inter font-[600] text-base ">Category</h4>
+      <h4 className="mb-2 font-inter font-[600] text-base">{categoryName}</h4>
 
       <Carousel
         opts={{
