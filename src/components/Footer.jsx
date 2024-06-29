@@ -2,13 +2,26 @@ import { AiFillInstagram } from "react-icons/ai";
 import { FaFacebook } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { FaYoutube } from "react-icons/fa";
+import { useLocation } from "react-router-dom";
 
 function Footer() {
+  const location = useLocation();
+
+  const pathToExlcude = ["/login", "/register"];
+
+  //checks if the current URL path name is equal to the pathToExclude,
+  //this component will not render.
+  for (let i = 0; i < pathToExlcude.length; i++) {
+    if (location.pathname === pathToExlcude[i]) {
+      return null;
+    }
+  }
+
   return (
     <>
       <section className="sec-footer h-96 py-10 bg-[#101010]">
-        <div className="links-wrapper nav-container flex justify-around flex-wrap">
-          <div className="link-card max-w-60">
+        <div className="links-wrapper nav-container flex justify-start flex-wrap">
+          <div className="link-card max-w-60 mr-40">
             <h1 className="mb-10 font-extrabold text-4xl text-white">SNRKS</h1>
             <h4 className="mb-2 font-medium text-base text-white">Follow Us</h4>
 
@@ -36,7 +49,7 @@ function Footer() {
             </ul>
           </div>
 
-          <div className="link-card max-w-60">
+          <div className="link-card max-w-60 mr-16">
             <h4 className="mb-10 font-bold text-base text-white">About</h4>
 
             <ul>

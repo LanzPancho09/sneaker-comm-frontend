@@ -1,9 +1,22 @@
 import { Button } from "./ui/button";
 import { FaHeart, FaUser } from "react-icons/fa";
 import { FaCartShopping } from "react-icons/fa6";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function Navigation() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const auth = false;
+
+  const pathToExlcude = ["/login", "/register"];
+
+  //checks if the current URL path name is equal to the pathToExclude,
+  //this component will not render.
+  for (let i = 0; i < pathToExlcude.length; i++) {
+    if (location.pathname === pathToExlcude[i]) {
+      return null;
+    }
+  }
 
   return (
     <>
@@ -31,11 +44,18 @@ function Navigation() {
                 </>
               ) : (
                 <li>
-                  <Button className="mr-5" variant="outline">
-                    Log In
+                  <Button
+                    variant="outline"
+                    className="mr-5"
+                    onClick={() => navigate("/login")}
+                  >
+                    Log in
                   </Button>
-                  <Button className="mr-5 bg-neutral-800 hover:bg-neutral-900">
-                    Sign In
+                  <Button
+                    className="mr-5 bg-neutral-800 hover:bg-neutral-900"
+                    onClick={() => navigate("/register")}
+                  >
+                    Sign up
                   </Button>
                 </li>
               )}

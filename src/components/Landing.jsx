@@ -31,7 +31,7 @@ function Landing() {
         </div>
       </section>
 
-      <section className="nav-container mb-10">
+      <section className="nav-container mb-20">
         <div className="my-20 flex items-center">
           <h1 className="ml-auto font-inter font-[900] text-8xl text-[#101010]">
             New Arrivals
