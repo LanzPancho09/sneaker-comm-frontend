@@ -1,6 +1,7 @@
 import { Button } from "./ui/button";
 import { FaHeart, FaUser } from "react-icons/fa";
 import { FaCartShopping } from "react-icons/fa6";
+import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 function Navigation() {
@@ -8,7 +9,11 @@ function Navigation() {
   const navigate = useNavigate();
   const auth = false;
 
-  const pathToExlcude = ["/login", "/register"];
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+
+  const pathToExlcude = ["/login", "/register", "/my-inventory"];
 
   //checks if the current URL path name is equal to the pathToExclude,
   //this component will not render.
@@ -23,7 +28,10 @@ function Navigation() {
       <nav className="main-background drop-shadow-md w-full h-20 fixed top-0 z-20">
         <div className="nav-container flex items-center justify-between h-full">
           <div className="nav-logo">
-            <h1 className="font-inter text-white text-4xl font-extrabold">
+            <h1
+              className="font-inter text-white text-4xl font-extrabold hover:cursor-pointer"
+              onClick={() => navigate("/")}
+            >
               SNKRS
             </h1>
           </div>

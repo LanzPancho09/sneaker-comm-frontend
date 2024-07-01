@@ -18,8 +18,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ProductList from "./ProductList";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 function ItemPreview() {
+  const location = useLocation();
+  //ScrollToTop
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+
   return (
     <>
       <section className="flex flex-col items-center justify-center pt-32 pb-20 bg-[#FAFAFA]">
@@ -114,7 +122,7 @@ function ItemPreview() {
           </div>
         </div>
 
-        <div className="content-wrapper mt-10 p-20 pt-0 w-[70%] bg-white bg-[#FAFAFA]">
+        <div className="content-wrapper mt-10 p-20 pt-0 w-[70%] bg-[#FAFAFA]">
           <ProductList categoryName="Related Items" />
           <ProductList categoryName="" />
         </div>

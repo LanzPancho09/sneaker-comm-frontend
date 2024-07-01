@@ -8,8 +8,16 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { IoIosHeartEmpty } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 
 function ProductList({ categoryName = "Category" }) {
+  const navigate = useNavigate();
+
+  const handleClick = (index) => {
+    console.warn("Item clicked! " + index);
+    navigate(`/product-item/${index}`);
+  };
+
   return (
     <>
       <h4 className="mb-2 font-inter font-[600] text-base">{categoryName}</h4>
@@ -26,7 +34,10 @@ function ProductList({ categoryName = "Category" }) {
               className="md:basis-1/2 lg:basis-1/4 pl-0"
               key={index}
             >
-              <div className="p-1">
+              <div
+                className="p-1 hover:cursor-pointer"
+                onClick={() => handleClick(index)}
+              >
                 <CardContent className="flex aspect-square items-center justify-center p-6">
                   {/* Custom Class Product Card*/}
                   <div className="product-card relative flex flex-col items-center flex-col-reverse justify-between w-[240px] h-[330px] bg-[#FCFCFC] shadow-[0_0px_30px_5px_rgba(0,0,0,0.05)] rounded-sm">

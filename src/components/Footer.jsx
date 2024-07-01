@@ -7,7 +7,7 @@ import { useLocation } from "react-router-dom";
 function Footer() {
   const location = useLocation();
 
-  const pathToExlcude = ["/login", "/register"];
+  const pathToExlcude = ["/login", "/register", "/my-inventory"];
 
   //checks if the current URL path name is equal to the pathToExclude,
   //this component will not render.
