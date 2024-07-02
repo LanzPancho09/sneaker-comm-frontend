@@ -14,7 +14,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
+import { Toaster } from "@/components/ui/toaster";
+import { useToast } from "@/components/ui/use-toast";
+
+import { useNavigate } from "react-router-dom";
+
 export function LoginComponent() {
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -64,10 +71,24 @@ export function LoginComponent() {
             </form>
           </CardContent>
           <CardFooter className="flex justify-end">
-            <Button variant="outline" className="mr-2">
+            <Button
+              variant="outline"
+              onClick={() => navigate("/")}
+              className="mr-2"
+            >
               Cancel
             </Button>
-            <Button>Login</Button>
+            <Button
+              onClick={() => {
+                toast({
+                  title: "Uh oh! Something went wrong.",
+                  description: "There was a problem with your request.",
+                });
+              }}
+            >
+              Login
+            </Button>
+            <Toaster />
           </CardFooter>
         </Card>
       </section>
