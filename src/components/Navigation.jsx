@@ -1,13 +1,14 @@
 import { Button } from "./ui/button";
 import { FaHeart, FaUser } from "react-icons/fa";
 import { FaCartShopping } from "react-icons/fa6";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function Navigation() {
   const location = useLocation();
   const navigate = useNavigate();
-  const auth = false;
+  const auth = localStorage.getItem("user");
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -41,6 +42,7 @@ function Navigation() {
               {auth ? (
                 <>
                   <li className="pr-5 text-white">
+                    {/* <Link to=>{user.name}</Link> */}
                     <FaHeart className="w-5 h-5" />
                   </li>
                   <li className="pr-5 text-white">

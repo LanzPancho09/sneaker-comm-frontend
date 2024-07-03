@@ -22,7 +22,43 @@ import { useNavigate } from "react-router-dom";
 export function LoginComponent() {
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const handleSumbit = async () => {
+    console.warn(email, password);
+
+    let result = await fetch("http://localhost:5000/login", {
+      method: "post",
+      body: JSON.stringify({ email, password }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    result = await result.json();
+    console.warn(result);
+
+    //checks if the result returns valid params,
+    //if not it means no credentials found.
+    if (result.firstName) {
+      localStorage.setItem("user", JSON.stringify(result));
+      toast({
+        title: "Success!",
+        description: email + " " + password,
+      });
+
+      navigate("/");
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Invalid Credentials",
+        description: "There was a problem with your request.",
+      });
+    }
+  };
 
   return (
     <>
@@ -44,13 +80,20 @@ export function LoginComponent() {
               <div className="grid w-full items-center gap-4">
                 <div className="flex flex-col space-y-1.5">
                   <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" placeholder="Name of your email" />
+                  <Input
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Name of your email"
+                  />
                 </div>
                 <div className="flex flex-col space-y-1.5">
                   <Label htmlFor="password">Password</Label>
                   <Input
                     type={showPassword ? "text" : "password"}
                     id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
                   ></Input>
                   <div className="flex items-center my-2">
@@ -78,16 +121,7 @@ export function LoginComponent() {
             >
               Cancel
             </Button>
-            <Button
-              onClick={() => {
-                toast({
-                  title: "Uh oh! Something went wrong.",
-                  description: "There was a problem with your request.",
-                });
-              }}
-            >
-              Login
-            </Button>
+            <Button onClick={() => handleSumbit()}>Login</Button>
             <Toaster />
           </CardFooter>
         </Card>

@@ -48,25 +48,26 @@ export function RegisterComponent() {
       },
     });
 
-    //Bad Request
-    // if (result.status == 400) {
-    //   toast({
-    //     title: "Uh oh! Something went wrong.",
-    //     description: `${
-    //       firstName + " " + lastName + " " + email + " " + password
-    //     }`,
-    //   });
+    //if status is ok.
+    if (result.status == 200) {
+      //using await function to wait .json method to process.
+      result = await result.json();
+      console.warn(result);
 
-    //   return;
-    // }
+      toast({
+        title: "Success! User account created.",
+        description: "User account created.",
+      });
 
-    //using await function to wait .json method to process.
-    result = await result.json();
-    console.warn(result);
+      return;
+    }
 
+    //Bad Request Handler.
     toast({
-      title: "Success! User account created.",
-      description: "User account created.",
+      title: "Uh oh! Something went wrong.",
+      description: `${
+        firstName + " " + lastName + " " + email + " " + password
+      }`,
     });
   };
 
