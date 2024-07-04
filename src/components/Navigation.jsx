@@ -1,6 +1,7 @@
 import { Button } from "./ui/button";
 import { FaHeart, FaUser } from "react-icons/fa";
 import { FaCartShopping } from "react-icons/fa6";
+import { MdOutlineInventory } from "react-icons/md";
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -50,6 +51,11 @@ function Navigation() {
                   </li>
                   <li className="pr-5 text-white">
                     <FaUser className="w-5 h-5" />
+                  </li>
+                  <li className="pr-5 text-white">
+                    <Link to={"/my-inventory"}>
+                      <MdOutlineInventory className="w-5 h-5" />
+                    </Link>
                   </li>
                 </>
               ) : (

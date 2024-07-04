@@ -52,6 +52,10 @@ import { Plus, PackagePlus, PackageOpen, PackageX } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
+import { useState } from "react";
+import Axios from "axios";
+import { Image } from "cloudinary-react";
+
 const invoices = [
   {
     invoice: "INV001",
@@ -98,6 +102,49 @@ const invoices = [
 ];
 
 export function ProductManager() {
+  const [image, setImage] = useState("");
+  const [imageEvent, setImageEvent] = useState("");
+
+  const handleUploadImage = async (files) => {
+    console.warn("requested");
+
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+      formData.append("files", files[i]);
+    }
+
+    let result = await fetch("http://localhost:5000/add-product", {
+      method: "post",
+      body: formData,
+    });
+
+    result = await result.json();
+
+    //TODO: tomorrow Load these code to the image holders to it can preview it.
+    console.warn(result.message);
+    console.warn(result.urls);
+
+    // for (let i = 0; i < files.length; i++) {
+    //   console.log(files[i]);
+    // }
+
+    // //collect the data, including file and the upload_present from cloudinary.
+    // const formData = new FormData();
+    // formData.append("file", files[0]);
+    // formData.append("upload_preset", "yib5xuol");
+
+    // //save the data to their api.
+    // const resp = await Axios.post(
+    //   "https://api.cloudinary.com/v1_1/dchmxjntx/image/upload",
+    //   formData
+    // );
+
+    // //fetch the public_id of the image that to be stored in the database.
+    // const publicId = resp.data.public_id;
+    // setImage(publicId);
+    // console.log(publicId);
+  };
+
   return (
     <section className="mx-[8vw] mt-[8vh] mb-20">
       <div className="content-title mb-5">
@@ -122,10 +169,10 @@ export function ProductManager() {
                 Add your product to be listed in listings.
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Name
+            <div className="flex flex-col py-4">
+              <div className="flex flex-col py-3">
+                <Label htmlFor="name" className="text-left mb-2">
+                  Product Name
                 </Label>
                 <Input
                   id="name"
@@ -133,7 +180,30 @@ export function ProductManager() {
                   className="col-span-3"
                 />
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
+
+              <div className="flex flex-col">
+                <Label htmlFor="imgPreview" className="text-left mb-2">
+                  Product Preview
+                </Label>
+
+                <Image cloudName="dchmxjntx" publicId={image} />
+
+                <Label htmlFor="picture" className="mb-2">
+                  Picture
+                </Label>
+                <Input
+                  id="picture"
+                  type="file"
+                  multiple={true}
+                  onChange={(e) => setImageEvent(e.target.files)}
+                  className="mb-2"
+                />
+                <Button onClick={() => handleUploadImage(imageEvent)}>
+                  Upload Image
+                </Button>
+              </div>
+
+              {/* <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="username" className="text-right">
                   Username
                 </Label>
@@ -142,7 +212,7 @@ export function ProductManager() {
                   defaultValue="@peduarte"
                   className="col-span-3"
                 />
-              </div>
+              </div> */}
             </div>
             <DialogFooter>
               <Button type="submit">Save changes</Button>
