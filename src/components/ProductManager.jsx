@@ -72,6 +72,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 import { useEffect, useState } from "react";
 
@@ -85,6 +86,7 @@ export function ProductManager() {
   const [unitPrice, setUnitPrice] = useState("");
   const [productStock, setProductStock] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [currentStock, setCurrentStock] = useState(0);
 
   const [onLoading, setOnLoading] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -156,55 +158,94 @@ export function ProductManager() {
     setUnitPrice("");
     setProductStock("");
     setSelectedCategory("");
+    setSelectedImages([]);
+    setImageEvent("");
     setError(false);
   };
 
-  const handleUploadImage = async (files) => {
+  const handleUploadImage = async (files, id, isSave) => {
     //check params if values are supplied.
-    setOnLoading(true);
-    if (
-      !productName ||
-      !haveImage ||
-      !selectedSize ||
-      !unitPrice ||
-      !productStock ||
-      !selectedCategory
-    ) {
-      setError(true);
-      setOnLoading(false);
-      return;
-    }
-
     console.warn("requested");
+    setOnLoading(true);
+
+    let result;
 
     const formData = new FormData();
-    for (let i = 0; i < files.length; i++) {
-      formData.append("files", files[i]);
+    if (files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        formData.append("files", files[i]);
+      }
     }
 
-    //add field information to the formData.
-    formData.append(
-      "record",
-      JSON.stringify({
-        productName,
-        selectedSize,
-        unitPrice,
-        productStock,
-        selectedCategory,
-      })
-    );
+    if (isSave) {
+      if (
+        !productName ||
+        !haveImage ||
+        !selectedSize ||
+        !unitPrice ||
+        !productStock ||
+        !selectedCategory
+      ) {
+        setError(true);
+        setOnLoading(false);
+        return;
+      }
 
-    let result = await fetch("http://localhost:5000/add-product", {
-      method: "post",
-      body: formData,
-    });
+      //add field information to the formData.
+      formData.append(
+        "record",
+        JSON.stringify({
+          productName,
+          selectedSize,
+          unitPrice,
+          productStock,
+          selectedCategory,
+        })
+      );
+
+      result = await fetch("http://localhost:5000/add-product", {
+        method: "post",
+        body: formData,
+      });
+    } else {
+      if (!productName || !unitPrice || !productStock) {
+        setError(true);
+        setOnLoading(false);
+        return;
+      }
+
+      //add field information to the formData.
+      formData.append(
+        "record",
+        JSON.stringify({
+          productName,
+          unitPrice,
+          productStock,
+        })
+      );
+
+      //product size and product category will be not be checked in edit.
+      result = await fetch(`http://localhost:5000/product/${id}`, {
+        method: "put",
+        body: formData,
+      });
+    }
 
     //return a toast depends on the status code.
     if (result.status == 200) {
-      toast({
-        title: "Success!",
-        description: "Product added successfully!",
-      });
+      if (isSave) {
+        toast({
+          title: "Success!",
+          description: "Product added successfully!",
+        });
+      } else {
+        toast({
+          title: "Success!",
+          description: "Product updated successfully!",
+        });
+
+        setReload(!reload);
+      }
     } else {
       toast({
         variant: "destructive",
@@ -248,24 +289,6 @@ export function ProductManager() {
     console.warn(result);
   };
 
-  const handleEditProduct = (id) => {
-    setOnLoading(true);
-    if (
-      !productName ||
-      !haveImage ||
-      !selectedSize ||
-      !unitPrice ||
-      !productStock ||
-      !selectedCategory
-    ) {
-      setError(true);
-      setOnLoading(false);
-      return;
-    }
-
-    console.log(id);
-  };
-
   const handleDeleteProduct = async (id) => {
     let result = await fetch(`http://localhost:5000/product/${id}`, {
       method: "Delete",
@@ -290,8 +313,34 @@ export function ProductManager() {
     setReload(!reload);
   };
 
+  const handleAddStock = async (id) => {
+    let result = await fetch(`http://localhost:5000/product/add-stock/${id}`, {
+      method: "put",
+      body: JSON.stringify({ stock: Number(currentStock) }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (result.status == 200) {
+      toast({
+        title: "Success!",
+        description: "Stock added successfully!",
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: "There was a problem with your request.",
+      });
+    }
+
+    setCurrentPage(0);
+    setReload(!reload);
+  };
+
   return (
-    <section className="mx-[8vw] mt-[8vh] mb-20">
+    <section className="mx-[8vw] mt-[5vh] mb-20">
       <Toaster />
 
       <div className="content-title mb-5">
@@ -506,7 +555,7 @@ export function ProductManager() {
               <DialogFooter className="mt-3">
                 <Button
                   type="submit"
-                  onClick={() => handleUploadImage(imageEvent)}
+                  onClick={() => handleUploadImage(imageEvent, "", true)}
                 >
                   {onLoading ? (
                     <>
@@ -566,9 +615,16 @@ export function ProductManager() {
                       </h4>
                     </div>
                   </TableCell>
-                  <TableCell>{productItem.unit_price}</TableCell>
+                  <TableCell>
+                    {productItem.unit_price.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </TableCell>
                   <TableCell>{productItem.stock}</TableCell>
-                  <TableCell>{productItem.category}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary">{productItem.category}</Badge>
+                  </TableCell>
                   <TableCell>
                     <div className="button-wrapper flex items-center justify-center">
                       <TooltipProvider>
@@ -584,7 +640,7 @@ export function ProductManager() {
                                     <PackagePlus className="size-5" />
                                   </Button>
                                 </DialogTrigger>
-                                <DialogContent className="sm:max-w-[425px]">
+                                <DialogContent className="sm:max-w-[425px] p-5">
                                   <DialogHeader>
                                     <DialogTitle>Add Stock</DialogTitle>
                                     <DialogDescription>
@@ -598,41 +654,58 @@ export function ProductManager() {
                                       }
                                     </DialogDescription>
                                   </DialogHeader>
-                                  <div className="grid gap-4 py-4">
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                      <Label
-                                        htmlFor="current-stock"
-                                        className="text-right"
-                                      >
-                                        Current Stock
-                                      </Label>
-                                      <Input
-                                        id="current-stock"
-                                        value={productItem.stock}
-                                        className="col-span-3"
-                                        disabled
-                                      />
+                                  <div className="flex flex-col">
+                                    <div className="mb-2">
+                                      <div>
+                                        <Label
+                                          htmlFor="current-stock"
+                                          className="text-right"
+                                        >
+                                          Current Stock
+                                        </Label>
+                                        <Input
+                                          id="current-stock"
+                                          value={productItem.stock}
+                                          className="col-span-3"
+                                          disabled
+                                        />
+                                      </div>
+                                    </div>
+
+                                    <div>
+                                      <div>
+                                        <Label
+                                          htmlFor="stock"
+                                          className="text-right"
+                                        >
+                                          Stock
+                                        </Label>
+                                        <Input
+                                          id="stock"
+                                          type="number"
+                                          min="0"
+                                          defaultValue="0"
+                                          value={currentStock}
+                                          className="col-span-3"
+                                          onChange={(e) =>
+                                            setCurrentStock(e.target.value)
+                                          }
+                                        />
+                                      </div>
                                     </div>
                                   </div>
-                                  <div className="grid gap-4 py-4">
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                      <Label
-                                        htmlFor="stock"
-                                        className="text-right"
-                                      >
-                                        Stock
-                                      </Label>
-                                      <Input
-                                        id="stock"
-                                        type="number"
-                                        min="0"
-                                        defaultValue="0"
-                                        className="col-span-3"
-                                      />
-                                    </div>
-                                  </div>
+
                                   <DialogFooter>
-                                    <Button type="submit">Add Stock</Button>
+                                    <DialogClose asChild>
+                                      <Button
+                                        type="submit"
+                                        onClick={() =>
+                                          handleAddStock(productItem._id)
+                                        }
+                                      >
+                                        Add Stock
+                                      </Button>
+                                    </DialogClose>
                                   </DialogFooter>
                                 </DialogContent>
                               </Dialog>
@@ -653,6 +726,13 @@ export function ProductManager() {
                                   <Button
                                     className="flex items-center justify-center"
                                     variant="ghost"
+                                    onClick={() => {
+                                      setSelectedImages([]);
+                                      setImageEvent("");
+                                      setProductName(productItem.name);
+                                      setUnitPrice(productItem.unit_price);
+                                      setProductStock(productItem.stock);
+                                    }}
                                   >
                                     <PackageOpen className="size-5" />
                                   </Button>
@@ -730,6 +810,46 @@ export function ProductManager() {
                                                 </Carousel>
                                               </div>
                                             </>
+                                          ) : productItem.urls.length > 0 ? (
+                                            <>
+                                              <Label
+                                                htmlFor="imgPreview"
+                                                className="text-left"
+                                              >
+                                                Product Preview
+                                              </Label>
+                                              <div className="image-preview flex flex-col items-center m-2">
+                                                <Carousel className="w-full max-w-xs items-center">
+                                                  <CarouselContent className="flex items-center">
+                                                    {productItem.urls.map(
+                                                      (imageSrc, index) => (
+                                                        <CarouselItem
+                                                          key={index}
+                                                        >
+                                                          <div className="p-1">
+                                                            <Card>
+                                                              <CardContent className="flex aspect-square items-center justify-center p-6">
+                                                                <img
+                                                                  className="w-[90%]"
+                                                                  src={
+                                                                    imageSrc.url
+                                                                  }
+                                                                  alt={`Selected ${
+                                                                    index + 1
+                                                                  }`}
+                                                                />
+                                                              </CardContent>
+                                                            </Card>
+                                                          </div>
+                                                        </CarouselItem>
+                                                      )
+                                                    )}
+                                                  </CarouselContent>
+                                                  <CarouselPrevious />
+                                                  <CarouselNext />
+                                                </Carousel>
+                                              </div>
+                                            </>
                                           ) : (
                                             <></>
                                           )}
@@ -749,74 +869,6 @@ export function ProductManager() {
                                               handleSelectedImages(e);
                                             }}
                                           />
-                                          {error && !haveImage && (
-                                            <Label className="text-rose-400 text-left mt-1 ml-1">
-                                              Field required.
-                                            </Label>
-                                          )}
-                                        </div>
-
-                                        <div className="flex flex-col pb-3">
-                                          <Label
-                                            htmlFor="name"
-                                            className="text-left mb-2"
-                                          >
-                                            Product Size
-                                          </Label>
-                                          <Select
-                                            onValueChange={(value) =>
-                                              setSelectedSize(value)
-                                            }
-                                          >
-                                            <SelectTrigger className="w-[180px]">
-                                              <SelectValue placeholder="Select a size" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                              <SelectGroup>
-                                                <SelectLabel>
-                                                  Available Sizes
-                                                </SelectLabel>
-                                                <SelectItem value="7">
-                                                  7
-                                                </SelectItem>
-                                                <SelectItem value="7.5">
-                                                  7.5
-                                                </SelectItem>
-                                                <SelectItem value="8">
-                                                  8
-                                                </SelectItem>
-                                                <SelectItem value="8.5">
-                                                  8.5
-                                                </SelectItem>
-                                                <SelectItem value="9">
-                                                  9
-                                                </SelectItem>
-                                                <SelectItem value="9.5">
-                                                  9.5
-                                                </SelectItem>
-                                                <SelectItem value="10">
-                                                  10
-                                                </SelectItem>
-                                                <SelectItem value="10.5">
-                                                  10.5
-                                                </SelectItem>
-                                                <SelectItem value="11">
-                                                  11
-                                                </SelectItem>
-                                                <SelectItem value="11.5">
-                                                  11.5
-                                                </SelectItem>
-                                                <SelectItem value="12">
-                                                  12
-                                                </SelectItem>
-                                              </SelectGroup>
-                                            </SelectContent>
-                                          </Select>
-                                          {error && !selectedSize && (
-                                            <Label className="text-rose-400 text-left mt-1 ml-1">
-                                              Field required.
-                                            </Label>
-                                          )}
                                         </div>
 
                                         <div className="flex flex-col pb-3">
@@ -869,36 +921,6 @@ export function ProductManager() {
                                             </Label>
                                           )}
                                         </div>
-
-                                        <div className="flex flex-col pb-3">
-                                          <Label
-                                            htmlFor="name"
-                                            className="text-left mb-2"
-                                          >
-                                            Product Category
-                                          </Label>
-                                          <Select
-                                            onValueChange={(value) =>
-                                              setSelectedCategory(value)
-                                            }
-                                          >
-                                            <SelectTrigger className="w-[180px]">
-                                              <SelectValue placeholder="Select a Category" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                              <SelectGroup>
-                                                <SelectItem value="sneaker">
-                                                  Sneakers
-                                                </SelectItem>
-                                              </SelectGroup>
-                                            </SelectContent>
-                                          </Select>
-                                          {error && !selectedCategory && (
-                                            <Label className="text-rose-400 text-left mt-1 ml-1">
-                                              Field required.
-                                            </Label>
-                                          )}
-                                        </div>
                                       </div>
                                     </ScrollArea>
 
@@ -906,7 +928,11 @@ export function ProductManager() {
                                       <Button
                                         type="submit"
                                         onClick={() =>
-                                          handleEditProduct(productItem._id)
+                                          handleUploadImage(
+                                            imageEvent,
+                                            productItem._id,
+                                            false
+                                          )
                                         }
                                       >
                                         {onLoading ? (
