@@ -8,9 +8,28 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useEffect, useState } from "react";
 import { IoIosHeartEmpty } from "react-icons/io";
 
 function Market() {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    let result = await fetch("http://localhost:5000/products", {
+      method: "Get",
+    });
+
+    if (result.ok) {
+      result = await result.json();
+      console.log(result);
+      setProducts(result);
+    }
+  };
+
   return (
     <>
       <section className="mx-[5%] mt-32 mb-20">
@@ -86,33 +105,39 @@ function Market() {
           <div className="product-list flex flex-col flex-1 ml-5">
             <div className="items-list flex flex-wrap flex-1">
               {/* Custom Class Product Card*/}
-              {Array.from({ length: 30 }).map((_, index) => (
+              {products.map((productData, index) => (
                 <div
-                  className="product-card relative flex flex-col items-center flex-col-reverse justify-between w-[240px] h-[330px] m-2 bg-[#FCFCFC] shadow-[0_0px_30px_5px_rgba(0,0,0,0.05)] rounded-sm"
+                  className="product-card relative flex flex-col items-center flex-col-reverse w-[240px] h-[330px] m-2 bg-[#FCFCFC] shadow-[0_0px_30px_5px_rgba(0,0,0,0.05)] rounded-sm"
                   key={index}
                 >
-                  <div className="product-info items-center p-3 bg-[#FFFFFF] w-full h-[141px]">
-                    <h4 className="font-inter font-bold text-base text-[#404040]">
-                      Stussy Basic T-shirt White
+                  <div className="product-info items-center p-5 w-full h-[130px] bg-white">
+                    <h4 className="truncate font-inter font-bold text-base text-[#404040]">
+                      {productData.name}
                     </h4>
                     <p className="font-inter font-normal text-sm text-[#AEAEB3]">
                       Lowest Ask
                     </p>
                     <h1 className="font-inter font-bold text-2xl text-[#404040]">
-                      $45
+                      ${productData.unit_price}
                     </h1>
-                    <div className="product-tag p-1 max-w-32 rounded-sm bg-[#404040]">
+                    {/* <div className="product-tag flex items-center justify-center p-1 mt-1 max-w-32 rounded-sm bg-[#404040]">
                       <p className="font-inter font-normal text-xs text-white text-center">
                         Last Sale $450
                       </p>
-                    </div>
+                    </div> */}
+                  </div>
+                  {/* <div className="product-info items-center p-3 bg-[#FFFFFF] w-full h-[141px] outline">
+                    <p>hello</p>
+                  </div> */}
+
+                  <div className="flex items-center justify-center flex-1">
+                    <img
+                      className="scale-75 w-[90%]"
+                      src={productData.urls[0].url}
+                      alt=""
+                    />
                   </div>
 
-                  <img
-                    className="w-[90%]"
-                    src="https://images.stockx.com/360/Nike-Air-Force-1-Low-White-07/Images/Nike-Air-Force-1-Low-White-07/Lv2/img01.jpg?fm=avif&auto=compress&w=576&dpr=1&updated_at=1635275427&h=384&q=57"
-                    alt=""
-                  />
                   <li className="absolute top-3 right-3 list-none">
                     <IoIosHeartEmpty className="w-6 h-6 cursor-pointer transition-colors duration-300 hover:fill-red-500" />
                   </li>
