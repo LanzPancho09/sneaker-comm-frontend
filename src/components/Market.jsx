@@ -13,20 +13,32 @@ import { IoIosHeartEmpty } from "react-icons/io";
 
 function Market() {
   const [products, setProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [endPage, setEndPage] = useState(0);
+  const [paginationList, setPaginationList] = useState([]);
 
   useEffect(() => {
     loadProducts();
-  }, []);
+  }, [currentPage]);
 
   const loadProducts = async () => {
     let result = await fetch("http://localhost:5000/products", {
-      method: "Get",
+      method: "Post",
+      body: JSON.stringify({
+        itemOffset: 20,
+        page: currentPage,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     if (result.ok) {
       result = await result.json();
-      console.log(result);
-      setProducts(result);
+
+      setProducts(result.productItems);
+      setEndPage(result.endPage);
+      setPaginationList(result.paginationList);
     }
   };
 
@@ -120,15 +132,7 @@ function Market() {
                     <h1 className="font-inter font-bold text-2xl text-[#404040]">
                       ${productData.unit_price}
                     </h1>
-                    {/* <div className="product-tag flex items-center justify-center p-1 mt-1 max-w-32 rounded-sm bg-[#404040]">
-                      <p className="font-inter font-normal text-xs text-white text-center">
-                        Last Sale $450
-                      </p>
-                    </div> */}
                   </div>
-                  {/* <div className="product-info items-center p-3 bg-[#FFFFFF] w-full h-[141px] outline">
-                    <p>hello</p>
-                  </div> */}
 
                   <div className="flex items-center justify-center flex-1">
                     <img
@@ -148,26 +152,52 @@ function Market() {
             <div className="pagination-content flex-none mt-7">
               <Pagination className="justify-start">
                 <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious href="#" />
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationLink href="#">1</PaginationLink>
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationLink href="#" isActive>
-                      2
-                    </PaginationLink>
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationLink href="#">3</PaginationLink>
-                  </PaginationItem>
+                  {currentPage >= 1 && (
+                    <>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={() => setCurrentPage(currentPage - 1)}
+                          href="#"
+                        />
+                      </PaginationItem>
+                    </>
+                  )}
+
+                  {paginationList.map((value, index) => (
+                    <PaginationItem key={value}>
+                      {value == currentPage ? (
+                        <PaginationLink
+                          href="#"
+                          isActive
+                          onClick={() => setCurrentPage(value)}
+                        >
+                          {value + 1}
+                        </PaginationLink>
+                      ) : (
+                        <PaginationLink
+                          href="#"
+                          onClick={() => setCurrentPage(value)}
+                        >
+                          {value + 1}
+                        </PaginationLink>
+                      )}
+                    </PaginationItem>
+                  ))}
+
                   <PaginationItem>
                     <PaginationEllipsis />
                   </PaginationItem>
-                  <PaginationItem>
-                    <PaginationNext href="#" />
-                  </PaginationItem>
+
+                  {currentPage < endPage && (
+                    <>
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={() => setCurrentPage(currentPage + 1)}
+                          href="#"
+                        />
+                      </PaginationItem>
+                    </>
+                  )}
                 </PaginationContent>
               </Pagination>
             </div>

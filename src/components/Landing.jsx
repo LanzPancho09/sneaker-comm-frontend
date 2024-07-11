@@ -57,8 +57,8 @@ function Landing() {
                 </div>
             </div> */}
 
-        <ProductList />
-        <ProductList />
+        <ProductList categoryName="sneaker" />
+        <ProductList categoryName="sneaker" />
 
         <div className="ad-banner my-10 relative w-full h-[520px] p-20 flex items-center justify-between bg-[#F8F8F8] shadow-lg">
           <div className="hero-title z-10">
@@ -79,8 +79,8 @@ function Landing() {
           />
         </div>
 
-        <ProductList />
-        <ProductList />
+        <ProductList categoryName="sneaker" />
+        <ProductList categoryName="sneaker" />
       </section>
     </>
   );
